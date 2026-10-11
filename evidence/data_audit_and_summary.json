@@ -1,0 +1,69 @@
+{
+ "rows_raw": 11155,
+ "partner_feed_duplicates_removed": 651,
+ "duplicate_labels_agree": true,
+ "order_value_x100_rows": 700,
+ "order_value_x100_months": [
+  "2025-10"
+ ],
+ "leak_columns": {
+  "pickup_scheduled_at_present_return_rate": 0.9179528838342811,
+  "pickup_scheduled_at_present_in_test": 0,
+  "service_events_train": {
+   "NONE": 6536,
+   "DEMO_DONE": 1417,
+   "INSTALL_DONE": 1354,
+   "REVERSE_PICKUP": 750,
+   "TECH_VISIT": 447
+  },
+  "service_events_test": {
+   "NONE": 1553,
+   "INSTALL_BOOKED": 543
+  }
+ },
+ "pincode_000000_by_channel": {
+  "app": 300,
+  "marketplace": 238,
+  "web": 218,
+  "partner_outlet": 92
+ },
+ "rows_clean": 10504,
+ "base_return_rate": 0.11424219345011424,
+ "oot_auc_pooled": 0.777,
+ "oot_auc_95ci": [
+  0.757,
+  0.795
+ ],
+ "test_rows": 2096,
+ "test_mean_score": 0.1192,
+ "test_share_above_call_threshold": 0.342,
+ "test_calls_per_quarter": 716,
+ "test_expected_net_saving_rs_quarter": 39929,
+ "test_shield_share": 0.221,
+ "call_threshold": 0.1118,
+ "coefficients": {
+  "payment_mode=emi": -0.993,
+  "payment_mode=prepaid_card": -0.974,
+  "payment_mode=prepaid_upi": -1.17,
+  "sales_channel=web": 0.086,
+  "sales_channel=marketplace": 0.34,
+  "sales_channel=partner_outlet": -0.24,
+  "family=Ceiling Fan": -0.522,
+  "family=Induction Cooktop": -0.256,
+  "family=Mixer Grinder": -0.511,
+  "family=Robot Vacuum": 0.321,
+  "family=Room Heater": 0.317,
+  "family=Water Purifier": 0.045,
+  "discount": 0.347,
+  "gift": 0.583,
+  "shield": 0.957,
+  "prior_returns": 1.018,
+  "prior_orders": 0.091,
+  "no_address": 0.037,
+  "log_price": 0.293,
+  "promised_days": 0.688,
+  "qty2": -0.379,
+  "tenure_yrs": 0.009,
+  "night": -0.077
+ }
+}

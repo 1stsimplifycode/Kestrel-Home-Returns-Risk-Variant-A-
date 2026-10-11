@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kestrel Dispatch Check</title>
+<style>
+:root{--ink:#0A1E3F;--mute:#5B6573;--line:#DDE2E8;--bg:#fff;--panel:#F6F8FA;--blue:#0082F0;--red:#D93036;--amber:#B26B00;--green:#1F8A4C}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+main{max-width:980px;margin:0 auto;padding:24px 16px}h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mute);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--panel);padding:16px;border:1px solid var(--line);border-radius:8px}
+label{font-size:12px;color:var(--mute);display:flex;flex-direction:column;gap:3px}input,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff}
+button{grid-column:1/-1;padding:10px;font:inherit;font-weight:600;background:var(--ink);color:#fff;border:0;border-radius:6px;cursor:pointer}
+.card{border:1px solid var(--line);border-radius:8px;padding:18px}.big{font-size:40px;font-weight:700}.act{font-weight:700;font-size:18px;margin:6px 0}
+.high{color:var(--red)}.medium{color:var(--amber)}.low{color:var(--green)}ul{margin:4px 0 12px 18px;padding:0}h3{font-size:13px;margin:12px 0 2px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.err{color:var(--red)}.foot{font-size:12px;color:var(--mute);margin-top:12px}
+</style></head><body><main>
+<h1>Dispatch check — return risk</h1>
+<p class="sub">Score one order before it leaves the warehouse. Recommends a confirmation call, never a hold.</p>
+<div class="grid">
+<form id="f">
+ <label>Order ID<input name="order_id" value="KO-DEMO-1"></label>
+ <label>Placed at (IST)<input name="order_placed_at" value="2026-09-20 14:10"></label>
+ <label>SKU<select name="sku" id="sku"></select></label>
+ <label>Qty<input name="qty" type="number" min="1" value="1"></label>
+ <label>Payment<select name="payment_mode"><option>cod</option><option>prepaid_upi</option><option>prepaid_card</option><option>emi</option></select></label>
+ <label>Channel<select name="sales_channel"><option>marketplace</option><option>app</option><option>web</option><option>partner_outlet</option></select></label>
+ <label>Discount %<input name="discount_pct" type="number" value="20"></label>
+ <label>Promised delivery days<input name="promised_delivery_days" type="number" value="8"></label>
+ <label>Customer prior orders<input name="customer_prior_orders" type="number" value="2"></label>
+ <label>Customer prior returns<input name="customer_prior_returns" type="number" value="1"></label>
+ <label>Gift?<select name="is_gift"><option>N</option><option>Y</option></select></label>
+ <label>Shield member?<select name="shield_member"><option>N</option><option>Y</option></select></label>
+ <label>Delivery pincode<input name="delivery_pincode" value="411001"></label>
+ <label>Customer signup date<input name="signup_date" value="2024-06-01"></label>
+ <button>Check this order</button>
+</form>
+<div class="card" id="out"><p class="sub">Fill the order and press <b>Check this order</b>.</p></div>
+</div>
+<p class="foot">Model: logistic regression trained on Apr-2025 to Jun-2026 orders. Out-of-time AUC 0.78. Costs from Ops Policy v4.1.</p>
+</main>
+<script>
+const skus=["KH-AF-01","KH-AF-02","KH-AF-03","KH-MG-01","KH-MG-02","KH-MG-03","KH-WP-01","KH-WP-02","KH-WP-03","KH-RV-01","KH-RV-02","KH-RV-03","KH-IC-01","KH-IC-02","KH-IC-03","KH-CF-01","KH-CF-02","KH-CF-03","KH-RH-01","KH-RH-02","KH-RH-03"];
+const s=document.getElementById('sku');skus.forEach(k=>{const o=document.createElement('option');o.textContent=k;if(k==="KH-RV-02")o.selected=true;s.appendChild(o)});
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.getElementById('f').onsubmit=async e=>{e.preventDefault();
+ const rec=Object.fromEntries(new FormData(e.target).entries());const out=document.getElementById('out');
+ try{const r=await fetch('/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)});
+  const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);
+  out.innerHTML=`<div class="big ${j.risk_band}">${(j.return_probability*100).toFixed(1)}%</div>
+  <div class="sub">chance this order comes back (${esc(j.risk_band)} risk; average order ≈ 11%)</div>
+  <div class="act ${j.risk_band}">${esc(j.recommended_action)}</div><div>${esc(j.why_this_action)}</div>
+  <h3>Pushes risk up</h3><ul>${j.raises_risk.map(x=>`<li>${esc(x)}</li>`).join('')||'<li>nothing notable</li>'}</ul>
+  <h3>Pulls risk down</h3><ul>${j.lowers_risk.map(x=>`<li>${esc(x)}</li>`).join('')||'<li>nothing notable</li>'}</ul>
+  <p class="foot">${esc(j.note)}</p>`;
+ }catch(err){out.innerHTML=`<p class="err">Could not score: ${esc(err.message)}. Is the service running?</p>`}};
+</script></body></html>
